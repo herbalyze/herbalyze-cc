@@ -1,34 +1,24 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv');
-
-dotenv.config();
+const bodyParser = require('body-parser');
+const homeRoutes = require('./routes/homeRoutes');
+const favoriteRoutes = require('./routes/favoriteRoutes');
+const plantDetailRoutes = require('./routes/plantDetailRoutes');
+const predictionRoutes = require('./routes/predictionRoutes');
 
 const app = express();
 
-
-app.use(cors());
-app.use(express.json());
-
-
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => {
-        console.log('MongoDB connected');
-    })
-    .catch((err) => {
-        console.error('MongoDB connection error:', err);
-    });
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.log(err));
 
-// Routes
+app.use(bodyParser.json());
 
-// Placeholder route
-app.get('/', (req, res) => {
-    res.send('Server is running ...');
-});
+app.use('/api/home', homeRoutes);
+app.use('/api/favorites', favoriteRoutes);
+app.use('/api/plant', plantDetailRoutes);
+app.use('/api/predict', predictionRoutes);
 
-// Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
