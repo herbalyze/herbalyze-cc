@@ -1,25 +1,9 @@
 const mongoose = require('mongoose');
 
 const predictionSchema = new mongoose.Schema({
-  userId: {
-    type: String,
-    required: true,
-  },
-  plantId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Plant',
-    required: true,
-  },
-  result: {
-    type: String,
-    enum: ['Success', 'Failed'],
-    required: true,
-  },
-  message: {
-    type: String,
-  },
+  userId: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+  predictedLabel: { type: String, required: true }
 });
 
-const Prediction = mongoose.model('Prediction', predictionSchema);
-
-module.exports = Prediction;
+module.exports = mongoose.model('Prediction', predictionSchema);

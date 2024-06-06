@@ -1,43 +1,38 @@
 const { Storage } = require('@google-cloud/storage');
+const Plant = require('../models/Plant');
 const Prediction = require('../models/Prediction');
+const path = require('path');
 
-const storage = new Storage();
+const storage = new Storage({ keyFilename: path.join(__dirname, '../config/serviceAccountKey.json') });
 const bucketName = 'herbalyze-users-image';
+const modelBucketName = 'herbalyze-ml-model-deployment';
 
 exports.predictPlant = async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded' });
-  }
+  const { userId, image } = req.body;
 
-  const { originalname, buffer } = req.file;
-  const fileName = `uploads/${Date.now()}-${originalname}`;
-
+  const fileName = `${Date.now()}-${image.originalname}`;
   const file = storage.bucket(bucketName).file(fileName);
+  const stream = file.createWriteStream({
+    metadata: {
+      contentType: image.mimetype
+    }
+  });
 
-  try {
-    await file.save(buffer, {
-      metadata: { contentType: req.file.mimetype },
-    });
+  stream.on('error', (err) => {
+    return res.status(500).json({ message: 'Image upload failed' });
+  });
 
+  stream.on('finish', async () => {
     const imageUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
-    
-    // Inferensi dengan imageUrl
-    const predictionResult = {
-      plantName: '',
-      description: '',
-      imageUrl,
-    };
+    const predictedLabel = await predictLabel(imageUrl, modelBucketName);
 
-    const prediction = new Prediction({
-      userId: req.body.userId,
-      imageUrl,
-      result: predictionResult,
-    });
-
+    const prediction = new Prediction({ userId, imageUrl, predictedLabel });
     await prediction.save();
 
-    res.status(200).json(predictionResult);
-  } catch (error) {
-    res.status(500).json({ message: 'Error predicting plant', error });
-  }
+    const plant = await Plant.findOne({ name: predictedLabel });
+
+    res.status(200).json({ plant });
+  });
+
+  stream.end(image.buffer);
 };

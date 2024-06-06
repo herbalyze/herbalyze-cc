@@ -1,8 +1,7 @@
 const express = require('express');
+const router = express.Router();
 const plantDetailController = require('../controllers/plantDetailController');
 
-const router = express.Router();
-
-router.get('/:plantId', plantDetailController.getPlantDetail);
+router.get('/plant/:id', plantDetailController.getPlantDetail);
 
 module.exports = router;
