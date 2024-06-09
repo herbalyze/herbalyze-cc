@@ -23,6 +23,10 @@ app.use('/api', predictionRoutes);
 app.use('/api', favoriteRoutes);
 app.use('/api', plantDetailRoutes);
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the Herbalyze API');
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
