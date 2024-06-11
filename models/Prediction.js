@@ -1,9 +1,28 @@
 const mongoose = require('mongoose');
 
-const predictionSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
-  imageUrl: { type: String, required: true },
-  predictedLabel: { type: String, required: true }
+const PredictionSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-module.exports = mongoose.model('Prediction', predictionSchema);
+const Prediction = mongoose.model('Prediction', PredictionSchema);
+
+module.exports = Prediction;

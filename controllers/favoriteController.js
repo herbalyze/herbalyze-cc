@@ -1,44 +1,56 @@
 const Favorite = require('../models/Favorite');
 const Plant = require('../models/Plant');
 
-exports.getFavorites = async (req, res) => {
-  const { userId } = req.params;
-
+const getFavoritesByUserId = async (req, res) => {
+  const { id } = req.params;
   try {
-    const favorites = await Favorite.find({ userId }).populate('plantId', 'name imageUrl shortDescription');
+    const favorites = await Favorite.find({ userId: id }).populate('plantId', '_id name imageUrl description');
     res.status(200).json(favorites);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to retrieve favorites' });
+    console.error('Error getting favorites by user ID:', error);
+    res.status(500).json({ error: 'Failed to get favorites' });
   }
 };
 
-exports.addFavorite = async (req, res) => {
+const addFavorite = async (req, res) => {
   const { userId, plantId } = req.body;
-
   try {
+    const plant = await Plant.findById(plantId);
+    if (!plant) {
+      return res.status(404).json({ error: 'Plant not found in the list of plants' });
+    }
+
     const existingFavorite = await Favorite.findOne({ userId, plantId });
     if (existingFavorite) {
-      return res.status(400).json({ message: 'Plant already in favorites' });
+      return res.status(400).json({ error: 'Plant already in favorites!' });
     }
 
-    const favorite = new Favorite({ userId, plantId });
-    await favorite.save();
-    res.status(201).json(favorite);
+    const newFavorite = new Favorite({ userId, plantId });
+    const savedFavorite = await newFavorite.save();
+
+    res.status(200).json(savedFavorite);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to add favorite' });
+    console.error('Error adding favorite:', error);
+    res.status(500).json({ error: 'Failed to add favorite' });
   }
 };
 
-exports.removeFavorite = async (req, res) => {
+const removeFavorite = async (req, res) => {
   const { userId, plantId } = req.body;
-
   try {
-    const favorite = await Favorite.findOneAndDelete({ userId, plantId });
-    if (!favorite) {
-      return res.status(404).json({ message: 'Favorite not found' });
+    const deletedFavorite = await Favorite.findOneAndDelete({ userId, plantId });
+    if (!deletedFavorite) {
+      return res.status(404).json({ error: 'Favorite not found' });
     }
-    res.status(200).json({ message: 'Favorite removed successfully' });
+    res.status(200).json({ message: 'Favorite successfully removed' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to remove favorite' });
+    console.error('Error removing favorite:', error);
+    res.status(500).json({ error: 'Failed to remove favorite' });
   }
+};
+
+module.exports = {
+  getFavoritesByUserId,
+  addFavorite,
+  removeFavorite,
 };

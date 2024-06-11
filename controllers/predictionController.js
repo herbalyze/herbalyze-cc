@@ -1,38 +1,66 @@
-const { Storage } = require('@google-cloud/storage');
-const Plant = require('../models/Plant');
 const Prediction = require('../models/Prediction');
-const path = require('path');
+const { loadModel, inferenceService } = require('../services/inferenceService');
+const Plant = require('../models/Plant');
+const uploadFileToGCS = require('../middleware/upload');
 
-const storage = new Storage({ keyFilename: path.join(__dirname, '../config/serviceAccountKey.json') });
-const bucketName = 'herbalyze-users-image';
-const modelBucketName = 'herbalyze-ml-model-deployment';
+let model;
+loadModel().then(loadedModel => {
+  model = loadedModel;
+}).catch(err => {
+  console.error('Error loading model:', err);
+});
 
-exports.predictPlant = async (req, res) => {
-  const { userId, image } = req.body;
-
-  const fileName = `${Date.now()}-${image.originalname}`;
-  const file = storage.bucket(bucketName).file(fileName);
-  const stream = file.createWriteStream({
-    metadata: {
-      contentType: image.mimetype
+const predictPlant = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
     }
-  });
 
-  stream.on('error', (err) => {
-    return res.status(500).json({ message: 'Image upload failed' });
-  });
+    if (req.file.size > 5 * 1024 * 1024) {
+      return res.status(400).json({ error: 'File size exceeds 5MB limit' });
+    }
 
-  stream.on('finish', async () => {
-    const imageUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
-    const predictedLabel = await predictLabel(imageUrl, modelBucketName);
+    const fileBuffer = req.file.buffer;
 
-    const prediction = new Prediction({ userId, imageUrl, predictedLabel });
-    await prediction.save();
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const contentType = req.file.mimetype;
+    if (!allowedMimeTypes.includes(contentType)) {
+      return res.status(400).json({ error: 'File is not an image (JPEG, PNG, GIF)' });
+    }
 
-    const plant = await Plant.findOne({ name: predictedLabel });
+    const gcsFile = await uploadFileToGCS(fileBuffer, req.file.originalname);
+    const gcsUrl = `https://storage.googleapis.com/${process.env.BUCKET_NAME}/${gcsFile.name}`;
+    
+    const predictionResult = await inferenceService(model, fileBuffer);
 
-    res.status(200).json({ plant });
-  });
+    const predictedPlant = await Plant.findOne({ name: predictionResult });
 
-  stream.end(image.buffer);
+    if (!predictedPlant) {
+      return res.status(404).json({ error: 'No matching plant found' });
+    }
+
+    const newPrediction = new Prediction({
+      userId: req.body.userId,
+      name: predictedPlant.name,
+      imageUrl: gcsUrl,
+      description: predictedPlant.description,
+    });
+
+    const savedPrediction = await newPrediction.save();
+
+    res.status(200).json({
+      _id: savedPrediction._id,
+      name: savedPrediction.name,
+      imageUrl: savedPrediction.imageUrl,
+      description: savedPrediction.description,
+      createdAt: savedPrediction.createdAt,
+    });
+  } catch (error) {
+    console.error('Error predicting plant:', error);
+    res.status(500).json({ error: 'Failed to predict plant' });
+  }
+};
+
+module.exports = {
+  predictPlant,
 };

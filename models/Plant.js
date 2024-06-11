@@ -1,11 +1,34 @@
 const mongoose = require('mongoose');
 
-const plantSchema = new mongoose.Schema({
+const recipeSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  imageUrl: { type: String, required: true },
-  shortDescription: { type: String, required: true },
-  benefits: { type: [String], required: true },
-  usage: { type: String, required: true }
+  description: { type: String, required: true },
 });
 
-module.exports = mongoose.model('Plant', plantSchema);
+const PlantSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  benefits: {
+    type: String,
+    default: '',
+  },
+  usage: {
+    type: String,
+    default: '',
+  },
+  recipes: [recipeSchema],
+});
+
+const Plant = mongoose.model('Plant', PlantSchema);
+
+module.exports = Plant;

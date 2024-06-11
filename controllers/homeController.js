@@ -1,10 +1,15 @@
 const Plant = require('../models/Plant');
 
-exports.getAllPlants = async (req, res) => {
+const getPlants = async (req, res) => {
   try {
-    const plants = await Plant.find({}, 'name imageUrl shortDescription');
+    const plants = await Plant.find({}, '_id name imageUrl description');
     res.status(200).json(plants);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to retrieve plants' });
+    console.error('Error getting plants:', error);
+    res.status(500).json({ error: 'Failed to get plants' });
   }
+};
+
+module.exports = {
+  getPlants,
 };

@@ -12,7 +12,6 @@ app.use(bodyParser.json());
 
 connectDB();
 
-// Routes
 const homeRoutes = require('./routes/homeRoutes');
 const predictionRoutes = require('./routes/predictionRoutes');
 const favoriteRoutes = require('./routes/favoriteRoutes');
@@ -24,7 +23,25 @@ app.use('/api', favoriteRoutes);
 app.use('/api', plantDetailRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Welcome to the Herbalyze API');
+  res.send(`
+    <h1>Welcome to the Herbalyze API</h1>
+    <p>Available endpoints</p>
+    <ul>
+      <li><a href="/api/plants">GET /api/plants</a></li>
+      <li><a href="/api/predict">POST /api/predict</a></li>
+      <li><a href="/api/plant/:id">GET /api/plant/:id</a></li>
+      <li><a href="/api/favorites/:id">GET /api/favorites/:id</a></li>
+      <li><a href="/api/favorites">POST /api/favorites</a></li>
+      <li><a href="/api/favorites">DELETE /api/favorites</a></li>
+    </ul>
+  `);
+});
+
+app.use((req, res) => {
+  res.status(404).send(`
+    <h1>Oops, there is nothing on this path</h1>
+    <p><a href="/">Click here to go back</a></p>
+  `);
 });
 
 const PORT = process.env.PORT || 5000;
