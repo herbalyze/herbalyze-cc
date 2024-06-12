@@ -4,6 +4,7 @@ const inferenceService = require('../services/inferenceService');
 const Plant = require('../models/Plant');
 const uploadFileToGCS = require('../middleware/upload');
 const fs = require('fs');
+const path = require('path'); // Pastikan ini diimpor
 
 const bucketName = process.env.BUCKET_NAME;
 let model;
@@ -18,42 +19,60 @@ loadModel()
 
 const predictPlant = async (req, res) => {
   try {
-    const fileBuffer = req.file.buffer;
-    const gcsFile = await uploadFileToGCS(fileBuffer, req.file.originalname);
-    const gcsUrl = `https://storage.googleapis.com/${bucketName}/${gcsFile}`;
-
-    const predictionResult = await inferenceService(model, fileBuffer);
-
-    console.log('Predicted Index:', predictionResult.predictedIndex);
-    console.log('Predicted Plant Name:', getPlantNameFromIndex(predictionResult.predictedIndex));
-    console.log('Prediction Score:', predictionResult.predictionScore);
-
-    const plantName = getPlantNameFromIndex(predictionResult.predictedIndex);
-    const predictionScore = predictionResult.predictionScore;
-
-    const predictedPlant = await Plant.findOne({ name: plantName });
-
-    if (!predictedPlant) {
-      return res.status(404).json({ error: 'No matching plant found' });
+    // Cek apakah file disertakan
+    if (!req.file) {
+      return res.status(400).json({ error: 'Tidak ada file yang disertakan' });
     }
 
-    const newPrediction = new Prediction({
-      userId: req.body.userId,
-      name: predictedPlant.name,
-      imageUrl: gcsUrl,
-      description: predictedPlant.description,
-    });
+    // Cek apakah file adalah gambar dengan ekstensi yang valid
+    const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    if (!allowedExtensions.includes(ext)) {
+      return res.status(400).json({ error: 'File bukan gambar JPG/JPEG/PNG' });
+    }
 
-    const savedPrediction = await newPrediction.save();
+    const fileBuffer = req.file.buffer;
 
-    res.status(200).json({
-      _id: savedPrediction._id,
-      name: savedPrediction.name,
-      imageUrl: savedPrediction.imageUrl,
-      description: savedPrediction.description,
-      createdAt: savedPrediction.createdAt,
-      predictionScore: predictionScore,
-    });
+    try {
+      const gcsFile = await uploadFileToGCS(fileBuffer, req.file.originalname);
+      const gcsUrl = `https://storage.googleapis.com/${bucketName}/${gcsFile}`;
+
+      const predictionResult = await inferenceService(model, fileBuffer);
+
+      console.log('Predicted Index:', predictionResult.predictedIndex);
+      console.log('Predicted Plant Name:', getPlantNameFromIndex(predictionResult.predictedIndex));
+      console.log('Prediction Score:', predictionResult.predictionScore);
+
+      const plantName = getPlantNameFromIndex(predictionResult.predictedIndex);
+      const predictionScore = predictionResult.predictionScore;
+
+      const predictedPlant = await Plant.findOne({ name: plantName });
+
+      if (!predictedPlant) {
+        return res.status(404).json({ error: `No matching plant found for: ${plantName}` });
+      }
+
+      const newPrediction = new Prediction({
+        userId: req.body.userId,
+        name: predictedPlant.name,
+        imageUrl: gcsUrl,
+        description: predictedPlant.description,
+      });
+
+      const savedPrediction = await newPrediction.save();
+
+      res.status(200).json({
+        _id: savedPrediction._id,
+        name: savedPrediction.name,
+        imageUrl: savedPrediction.imageUrl,
+        description: savedPrediction.description,
+        createdAt: savedPrediction.createdAt,
+        predictionScore: predictionScore,
+      });
+    } catch (error) {
+      console.error('Error uploading file to GCS:', error.message);
+      return res.status(400).json({ error: error.message });
+    }
   } catch (error) {
     console.error('Error predicting plant:', error);
     res.status(500).json({ error: 'Failed to predict plant' });
@@ -63,17 +82,17 @@ const predictPlant = async (req, res) => {
 function getPlantNameFromIndex(index) {
   switch (index) {
     case 0:
-      return 'Lidah Buaya (Aloe vera L)';
-    case 1:
-      return 'Seledri (Apium graveolens)';
-    case 2:
-      return 'Timun (Cucumis sativus)';
-    case 3:
       return 'Daun Kemangi (Ocimum basilicum)';
-    case 4:
-      return 'Jambu (Psidium guajava)';
-    case 5:
+    case 1:
       return 'Jahe (Zingiber officinale)';
+    case 2:
+      return 'Jambu (Psidium guajava)';
+    case 3:
+      return 'Lidah Buaya (Aloe vera L)';
+    case 4:
+      return 'Mentimun (Cucumis sativus)';
+    case 5:
+      return 'Seledri (Apium graveolens)';
     default:
       return null;
   }

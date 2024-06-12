@@ -10,9 +10,15 @@ const storage = new Storage({ projectId: serviceAccountKey.project_id, credentia
 const bucket = storage.bucket(bucketName);
 
 const uploadFileToGCS = async (fileBuffer, originalname) => {
+  const allowedExtensions = ['.jpg', '.jpeg', '.png'];
   const ext = path.extname(originalname).toLowerCase();
-  if (ext !== '.jpg' && ext !== '.jpeg') {
-    throw new Error('File bukan gambar JPG/JPEG');
+  if (!allowedExtensions.includes(ext)) {
+    throw new Error('File bukan gambar JPG/JPEG/PNG');
+  }
+
+  const fileSizeInMB = fileBuffer.length / (1024 * 1024); // dalam MB
+  if (fileSizeInMB > 4) {
+    throw new Error('File terlalu besar (> 4MB)');
   }
 
   const gcsFileName = `${uuidv4()}${ext}`;
