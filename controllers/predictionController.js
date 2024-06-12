@@ -84,15 +84,15 @@ function getPlantNameFromIndex(index) {
     case 0:
       return 'Daun Kemangi (Ocimum basilicum)';
     case 1:
-      return 'Jahe (Zingiber officinale)';
+      return 'Jahe (Zingiber officinale Roxb)';
     case 2:
-      return 'Jambu (Psidium guajava)';
+      return 'Jambu Biji (Psidium guajava L)';
     case 3:
       return 'Lidah Buaya (Aloe vera L)';
     case 4:
-      return 'Mentimun (Cucumis sativus)';
+      return 'Mentimun (Cucumis sativus L.)';
     case 5:
-      return 'Seledri (Apium graveolens)';
+      return 'Seledri (Apium graveolens L)';
     default:
       return null;
   }
