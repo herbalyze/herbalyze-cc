@@ -37,8 +37,8 @@ API untuk mengidentifikasi dan mengelola data tanaman herbal.
   - Content-Type: multipart/form-data
 - Request Body
 
-    - userId as text
-    - image as file, must be a valid image file (jpeg, jpg, png), max size 4MB
+    - `userId` as `text`
+    - `image` as `file`, must be a valid image file (jpeg, jpg, png), max size 4MB
 - Response (Success)
 
 ```json
@@ -122,8 +122,8 @@ API untuk mengidentifikasi dan mengelola data tanaman herbal.
 - Headers
     - Content-Type: application/json
 - Request Body
-    - userId as string
-    - plantId as string
+    - `userId` as `string`
+    - `plantId` as `string`
 - Response (Success)
 
 ```json
@@ -152,8 +152,8 @@ API untuk mengidentifikasi dan mengelola data tanaman herbal.
     - Content-Type: application/json
 - Request Body
 
-    - userId as string
-    - plantId as string
+    - `userId` as `string`
+    - `plantId` as `string`
 
 - Response (Success)
 
