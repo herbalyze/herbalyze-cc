@@ -68,7 +68,7 @@ API untuk mengidentifikasi dan mengelola data tanaman herbal.
 
 ## Get plant detail
 - URL
-  - /plant/:id
+  - `/plant/:id`
 - Method
   - GET
 
