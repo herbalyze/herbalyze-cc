@@ -69,7 +69,7 @@ API untuk mengidentifikasi dan mengelola data tanaman herbal.
 ## Get plant detail
 - URL
   - `/plant/:id`
-  - example `https://express-app-yyd2mje6vq-et.a.run.app/api/plant/667169e0d484b3ae0e159b68`
+  - `https://express-app-yyd2mje6vq-et.a.run.app/api/plant/667169e0d484b3ae0e159b68`
 - Method
   - GET
 
