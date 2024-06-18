@@ -69,6 +69,7 @@ API untuk mengidentifikasi dan mengelola data tanaman herbal.
 ## Get plant detail
 - URL
   - `/plant/:id`
+  - example `https://express-app-yyd2mje6vq-et.a.run.app/api/plant/667169e0d484b3ae0e159b68`
 - Method
   - GET
 
@@ -79,14 +80,16 @@ API untuk mengidentifikasi dan mengelola data tanaman herbal.
     "name": "Lidah Buaya (Aloe vera L)",
     "imageUrl": "https://storage.googleapis.com/herbalyze-response-image/lidah-buaya.jpeg",
     "description": "Lidah buaya, dikenal secara ilmiah sebagai Aloe vera L., adalah tumbuhan sukulen yang telah dikenal dan digunakan selama ribuan tahun karena manfaat medis dan kecantikannya. Lidah buaya memiliki daun tebal dan berdaging yang menyimpan gel bening yang kaya akan nutrisi dan senyawa bioaktif.",
+    "benefits": [
+        "Membantu mengurangi kemerahan dan peradangan yang terkait dengan jerawat.",
+        "Membantu mengatasi masalah kulit kepala",
+        "Membantu mengurangi pertumbuhan bakteri dalam mulut",
+        "Menyembuhkan luka",
+        "Meningkatkan kesehatan pencernaan"
+    ],
     "usage": "Getah dan cairannya diambil lalu dioleskan",
-    "recipes": [
-        {
-            "name": "Gel Lidah Buaya untuk Perawatan Kulit",
-            "description": "Ambil daun lidah buaya segar dan potong untuk mendapatkan gel bening di dalamnya. Kumpulkan gel dalam wadah bersih. Oleskan gel secara merata pada area kulit yang mengalami kemerahan atau peradangan. Biarkan selama 20-30 menit, lalu bilas dengan air bersih. Gunakan secara rutin untuk hasil terbaik.",
-            "_id": "6665deb48ee3b0004892894d"
-        }
-    ]
+    "recipeName": "Gel Lidah Buaya untuk Perawatan Kulit",
+    "recipeGuide": "Ambil daun lidah buaya segar dan potong untuk mendapatkan gel bening di dalamnya. Kumpulkan gel dalam wadah bersih. Oleskan gel secara merata pada area kulit yang mengalami kemerahan atau peradangan. Biarkan selama 20-30 menit, lalu bilas dengan air bersih. Gunakan secara rutin untuk hasil terbaik."
 }
 ```
 
