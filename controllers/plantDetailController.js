@@ -11,9 +11,10 @@ const getPlantById = async (req, res) => {
       name: plant.name,
       imageUrl: plant.imageUrl,
       description: plant.description,
-      benefits: plant.benefits,
+      benefits: plant.benefits,  // Memperbaiki di sini untuk menampilkan benefits
       usage: plant.usage,
-      recipes: plant.recipes,
+      recipeName: plant.recipeName,
+      recipeGuide: plant.recipeGuide,
     });
   } catch (error) {
     console.error('Error getting plant by ID:', error);

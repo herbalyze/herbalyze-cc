@@ -4,7 +4,7 @@ const inferenceService = require('../services/inferenceService');
 const Plant = require('../models/Plant');
 const uploadFileToGCS = require('../middleware/upload');
 const fs = require('fs');
-const path = require('path'); // Pastikan ini diimpor
+const path = require('path');
 
 const bucketName = process.env.BUCKET_NAME;
 let model;
@@ -19,12 +19,10 @@ loadModel()
 
 const predictPlant = async (req, res) => {
   try {
-    // Cek apakah file disertakan
     if (!req.file) {
       return res.status(400).json({ error: 'Tidak ada file yang disertakan' });
     }
 
-    // Cek apakah file adalah gambar dengan ekstensi yang valid
     const allowedExtensions = ['.jpg', '.jpeg', '.png'];
     const ext = path.extname(req.file.originalname).toLowerCase();
     if (!allowedExtensions.includes(ext)) {

@@ -1,10 +1,5 @@
 const mongoose = require('mongoose');
 
-const recipeSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-});
-
 const PlantSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -19,14 +14,21 @@ const PlantSchema = new mongoose.Schema({
     required: true,
   },
   benefits: {
-    type: String,
-    default: '',
+    type: [String],
+    default: [],
   },
   usage: {
     type: String,
     default: '',
   },
-  recipes: [recipeSchema],
+  recipeName: {
+    type: String,
+    default: '',
+  },
+  recipeGuide: {
+    type: String,
+    default: '',
+  },
 });
 
 const Plant = mongoose.model('Plant', PlantSchema);
